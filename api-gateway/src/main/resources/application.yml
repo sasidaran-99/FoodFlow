@@ -1,0 +1,91 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: 6379
+
+  cloud:
+    gateway:
+      httpclient:
+        connect-timeout: 2000
+        response-timeout: 5s
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - PATCH
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+      routes:
+        # Rate-limited login route
+        - id: user-service-login
+          uri: ${USER_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/auth/login
+          filters:
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 5
+                redis-rate-limiter.burstCapacity: 10
+                key-resolver: "#{@ipKeyResolver}"
+
+        # General user-service routes
+        - id: user-service
+          uri: ${USER_SERVICE_URL:http://localhost:8081}
+          predicates:
+            - Path=/api/auth/**, /api/users/**
+        
+        # Restaurant-service routes
+        - id: restaurant-service
+          uri: ${RESTAURANT_SERVICE_URL:http://localhost:8082}
+          predicates:
+            - Path=/api/restaurants/**
+
+        # Order-service routes
+        - id: order-service
+          uri: ${ORDER_SERVICE_URL:http://localhost:8083}
+          predicates:
+            - Path=/api/orders/**
+
+        # Payment-service routes
+        - id: payment-service
+          uri: ${PAYMENT_SERVICE_URL:http://localhost:8084}
+          predicates:
+            - Path=/api/payments/**
+
+        # Notification-service routes
+        - id: notification-service
+          uri: ${NOTIFICATION_SERVICE_URL:http://localhost:8085}
+          predicates:
+            - Path=/api/notifications/**
+
+        # Delivery-service routes
+        - id: delivery-service
+          uri: ${DELIVERY_SERVICE_URL:http://localhost:8086}
+          predicates:
+            - Path=/api/deliveries/**
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+    com.foodflow.gateway: DEBUG

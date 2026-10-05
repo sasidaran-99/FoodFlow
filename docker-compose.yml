@@ -1,0 +1,66 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15
+    container_name: foodflow-postgres
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: ${DB_USER:-foodflow}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: defaultdb
+      TZ: UTC
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.4
+    container_name: foodflow-zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.4
+    container_name: foodflow-kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+    restart: unless-stopped
+
+  redis:
+    image: redis:7.2-alpine
+    container_name: foodflow-redis
+    ports:
+      - "6379:6379"
+    command: redis-server --save 60 1 --loglevel warning
+
+  api-gateway:
+    image: foodflow/api-gateway:latest
+    build:
+      context: ./api-gateway
+    container_name: foodflow-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - REDIS_HOST=redis
+      - USER_SERVICE_URL=http://user-service:8081
+      - RESTAURANT_SERVICE_URL=http://restaurant-service:8082
+      - ORDER_SERVICE_URL=http://order-service:8083
+      - PAYMENT_SERVICE_URL=http://payment-service:8084
+      - NOTIFICATION_SERVICE_URL=http://notification-service:8085
+      - DELIVERY_SERVICE_URL=http://delivery-service:8086
+    depends_on:
+      - redis

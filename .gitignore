@@ -1,0 +1,76 @@
+# ==============================================================================
+# FoodFlow — Root Git Ignore Configuration
+# ==============================================================================
+
+# Environment variable files and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+*.keystore
+*.jks
+secrets/
+
+# Spring local configuration profiles
+application-local.yml
+application-local.properties
+application-*.local.yml
+application-*.local.properties
+**/application-local.yml
+**/application-local.properties
+
+# Logs and runtime traces
+*.log
+*.log.*
+logs/
+**/logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Database & Container Persistent Data
+postgres-data/
+**/postgres-data/
+
+# Java / Maven build output
+target/
+**/target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Frontend dependencies and production builds
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.eslintcache
+
+# IDE and Editor configuration
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+*.code-workspace
+.project
+.classpath
+.settings/
+bin/
+*.sublime-project
+*.sublime-workspace
+
+# Operating System temporary files
+.DS_Store
+Thumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# Temporary and audit scratch files
+scratch_audit_results.txt
+scratch/
