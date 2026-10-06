@@ -29,6 +29,9 @@ public class NotificationController {
 
     @GetMapping("/{id}")
     public ResponseEntity<NotificationDto> getNotification(@PathVariable Long id) {
-        return ResponseEntity.ok(notificationService.getNotification(id));
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        Long userId = auth != null && auth.getPrincipal() instanceof Long ? (Long) auth.getPrincipal() : null;
+        boolean isAdmin = auth != null && auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        return ResponseEntity.ok(notificationService.getNotification(id, userId, isAdmin));
     }
 }

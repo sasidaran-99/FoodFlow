@@ -197,6 +197,11 @@ public class OrderService {
             }
         }
 
+        if (order.getStatus() == newStatus) {
+            log.info("Order {} is already in status {}. No transition performed (safe no-op).", orderId, newStatus);
+            return mapToDto(order);
+        }
+
         validateStateTransition(order.getStatus(), newStatus);
         order.setStatus(newStatus);
         return mapToDto(orderRepository.save(order));

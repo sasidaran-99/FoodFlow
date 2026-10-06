@@ -22,12 +22,18 @@ export const RegisterPage: React.FC = () => {
     setError(null);
     setIsSubmitting(true);
 
+    const trimmedPhone = phone.trim();
+    if (!/^\d{10}$/.test(trimmedPhone)) {
+      setError('Phone number must be exactly 10 digits.');
+      return;
+    }
+
     try {
       await register({
         name: name.trim(),
         email: email.trim(),
         password,
-        phone: phone.trim(),
+        phone: trimmedPhone,
         role,
       });
 
@@ -87,15 +93,19 @@ export const RegisterPage: React.FC = () => {
           </div>
 
           <div className="form-group">
-            <label htmlFor="phone">Phone Number</label>
+            <label htmlFor="phone">Phone Number (10 Digits)</label>
             <input
               id="phone"
               type="tel"
               required
+              maxLength={10}
               className="form-input"
               placeholder="e.g. 9876543210"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => {
+                const cleanVal = e.target.value.replace(/\D/g, '').slice(0, 10);
+                setPhone(cleanVal);
+              }}
               disabled={isSubmitting}
             />
           </div>

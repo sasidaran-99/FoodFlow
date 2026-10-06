@@ -181,40 +181,50 @@ export const OwnerDashboardPage: React.FC = () => {
 
       {/* Restaurant Management Table */}
       {!isLoading && restaurants.length > 0 && (
-        <div className="card">
+        <div className="card owner-restaurants-card">
           <div className="table-responsive">
-            <table className="data-table">
+            <table className="data-table owner-table">
               <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Restaurant</th>
-                  <th>Address</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                  <th style={{ width: '80px' }}>ID</th>
+                  <th style={{ minWidth: '220px' }}>Restaurant</th>
+                  <th style={{ minWidth: '240px', maxWidth: '320px' }}>Address</th>
+                  <th style={{ width: '130px', textAlign: 'center' }}>Status</th>
+                  <th style={{ minWidth: '220px', textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {restaurants.map((rest) => (
                   <tr key={rest.id}>
-                    <td>#{rest.id}</td>
                     <td>
-                      <strong>{rest.name}</strong>
-                      <p className="text-muted" style={{ margin: 0, fontSize: '0.8rem' }}>
-                        {rest.description}
-                      </p>
+                      <span className="restaurant-id-badge">#{rest.id}</span>
                     </td>
-                    <td>{rest.address}</td>
                     <td>
+                      <div className="restaurant-cell-info">
+                        <strong className="restaurant-cell-name">{rest.name}</strong>
+                        {rest.description && (
+                          <p className="restaurant-cell-desc">
+                            {rest.description}
+                          </p>
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="restaurant-cell-address">
+                        {rest.address}
+                      </div>
+                    </td>
+                    <td style={{ textAlign: 'center' }}>
                       <span className={`status-pill ${rest.open ? 'status-open' : 'status-closed'}`}>
-                        {rest.open ? '● Open' : 'Closed'}
+                        {rest.open ? '● Open' : '● Closed'}
                       </span>
                     </td>
-                    <td>
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <td style={{ textAlign: 'right' }}>
+                      <div className="table-actions-group">
                         <button
                           onClick={() => handleToggleStatus(rest.id, rest.open)}
                           className={`btn btn-sm ${rest.open ? 'btn-secondary' : 'btn-primary'}`}
-                          title="Toggle Open/Close"
+                          title="Toggle Open/Close status"
                         >
                           {rest.open ? 'Close' : 'Open'}
                         </button>

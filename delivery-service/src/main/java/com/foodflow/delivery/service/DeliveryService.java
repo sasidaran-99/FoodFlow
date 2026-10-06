@@ -16,6 +16,7 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.foodflow.delivery.exception.ResourceNotFoundException;
 import java.util.Optional;
 
 @Slf4j
@@ -52,7 +53,7 @@ public class DeliveryService {
     @Transactional
     public DeliveryDto assignPartner(Long deliveryId) {
         Delivery delivery = deliveryRepository.findById(deliveryId)
-                .orElseThrow(() -> new RuntimeException("Delivery not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery not found with ID: " + deliveryId));
 
         if (delivery.getStatus() != DeliveryStatus.ASSIGNMENT_PENDING) {
             throw new IllegalStateException("Delivery is not in ASSIGNMENT_PENDING state");
@@ -88,13 +89,18 @@ public class DeliveryService {
     @Transactional
     public DeliveryDto updateStatus(Long deliveryId, String newStatusStr) {
         Delivery delivery = deliveryRepository.findById(deliveryId)
-                .orElseThrow(() -> new RuntimeException("Delivery not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery not found with ID: " + deliveryId));
 
         DeliveryStatus newStatus;
         try {
             newStatus = DeliveryStatus.valueOf(newStatusStr.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid status: " + newStatusStr);
+        }
+
+        if (delivery.getStatus() == newStatus) {
+            log.info("Delivery {} is already in status {}. No transition performed (safe no-op).", deliveryId, newStatus);
+            return mapToDto(delivery);
         }
 
         validateStateTransition(delivery.getStatus(), newStatus);
@@ -104,7 +110,7 @@ public class DeliveryService {
         if (newStatus == DeliveryStatus.DELIVERED || newStatus == DeliveryStatus.CANCELLED) {
             if (delivery.getDeliveryPartnerId() != null) {
                 DeliveryPartner partner = deliveryPartnerRepository.findById(delivery.getDeliveryPartnerId())
-                        .orElseThrow(() -> new RuntimeException("Partner not found"));
+                        .orElseThrow(() -> new ResourceNotFoundException("Partner not found with ID: " + delivery.getDeliveryPartnerId()));
                 partner.setStatus(PartnerStatus.AVAILABLE);
                 deliveryPartnerRepository.save(partner);
             }
@@ -146,12 +152,12 @@ public class DeliveryService {
 
     public DeliveryDto getDelivery(Long id) {
         return deliveryRepository.findById(id).map(this::mapToDto)
-                .orElseThrow(() -> new RuntimeException("Delivery not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Delivery not found with ID: " + id));
     }
     
     public DeliveryDto getDeliveryByOrderId(Long orderId) {
         return deliveryRepository.findByOrderId(orderId).map(this::mapToDto)
-                .orElseThrow(() -> new RuntimeException("Delivery not found for order"));
+                .orElseThrow(() -> new ResourceNotFoundException("No delivery found for Order #" + orderId));
     }
     
     public DeliveryPartner createPartner(String name) {

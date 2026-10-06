@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public class PaymentFailedEvent {
     private String eventId;
     private Long orderId;
+    private Long userId;
     private Long paymentId;
     private BigDecimal amount;
     private String failureReason;

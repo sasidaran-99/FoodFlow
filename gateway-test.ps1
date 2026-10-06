@@ -1,10 +1,27 @@
 $ErrorActionPreference = "Stop"
 
-$GATEWAY_URL = "http://localhost:8080"
+# Load environment variables from .env if present
+$envFile = Join-Path $PSScriptRoot ".env"
+if (Test-Path $envFile) {
+    Get-Content $envFile | ForEach-Object {
+        $line = $_.Trim()
+        if ($line -and -not $line.StartsWith("#") -and $line.Contains("=")) {
+            $parts = $line.Split("=", 2)
+            $varName = $parts[0].Trim()
+            $varVal = $parts[1].Trim()
+            if (-not [System.Environment]::GetEnvironmentVariable($varName, "Process")) {
+                [System.Environment]::SetEnvironmentVariable($varName, $varVal, "Process")
+            }
+        }
+    }
+}
+
+$gatewayPort = if ($env:GATEWAY_PORT) { $env:GATEWAY_PORT } elseif ((Test-NetConnection -ComputerName 127.0.0.1 -Port 8087 -WarningAction SilentlyContinue).TcpTestSucceeded) { 8087 } else { 8080 }
+$GATEWAY_URL = "http://localhost:$gatewayPort"
 
 Write-Host "=========================================="
 Write-Host "API Gateway E2E Test"
-Write-Host "All traffic will be routed through port 8080"
+Write-Host "All traffic will be routed through $GATEWAY_URL"
 Write-Host "==========================================`n"
 
 Write-Host "1. Testing Public Endpoint (User Registration & Login)"

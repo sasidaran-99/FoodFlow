@@ -23,8 +23,13 @@ export const DeliveryDashboardPage: React.FC = () => {
   }, []);
 
   const handleLookupDelivery = async (orderIdNum?: number) => {
-    const idToLookup = orderIdNum || parseInt(searchOrderId, 10);
-    if (!idToLookup || isNaN(idToLookup)) {
+    const inputVal = orderIdNum !== undefined ? String(orderIdNum) : searchOrderId;
+    if (!inputVal || !inputVal.trim()) {
+      setError('Please enter an Order ID.');
+      return;
+    }
+    const idToLookup = typeof orderIdNum === 'number' ? orderIdNum : parseInt(inputVal.trim(), 10);
+    if (isNaN(idToLookup) || idToLookup <= 0) {
       setError('Please enter a valid numeric Order ID.');
       return;
     }
@@ -36,8 +41,12 @@ export const DeliveryDashboardPage: React.FC = () => {
     try {
       const data = await deliveryApi.getDeliveryByOrderId(idToLookup);
       setActiveDelivery(data);
-    } catch (err) {
-      setError(getErrorMessage(err));
+    } catch (err: any) {
+      if (err?.response?.status === 404) {
+        setError(`No delivery found for Order #${idToLookup}`);
+      } else {
+        setError(getErrorMessage(err));
+      }
       setActiveDelivery(null);
     } finally {
       setIsLoading(false);
@@ -105,7 +114,7 @@ export const DeliveryDashboardPage: React.FC = () => {
           <button
             onClick={() => handleLookupDelivery()}
             className="btn btn-primary"
-            disabled={isLoading || !searchOrderId}
+            disabled={isLoading}
           >
             {isLoading ? 'Searching...' : 'Search'}
           </button>

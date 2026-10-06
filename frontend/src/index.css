@@ -1076,6 +1076,92 @@ body {
   border-bottom: none;
 }
 
+/* Enhanced Data Table & Owner Dashboard Polish */
+.data-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+}
+
+.data-table th {
+  background-color: var(--bg-subtle, #f8fafc);
+  padding: 0.875rem 1.25rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--secondary, #475569);
+  border-bottom: 2px solid var(--border, #e2e8f0);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding: 1rem 1.25rem;
+  font-size: 0.925rem;
+  border-bottom: 1px solid var(--border, #e2e8f0);
+  color: var(--text-main, #1e293b);
+  vertical-align: middle;
+}
+
+.data-table tbody tr:hover {
+  background-color: #fafaf9;
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.owner-restaurants-card {
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.restaurant-id-badge {
+  display: inline-block;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: #64748b;
+  background-color: #f1f5f9;
+  padding: 0.2rem 0.5rem;
+  border-radius: var(--radius-sm, 4px);
+  border: 1px solid #e2e8f0;
+}
+
+.restaurant-cell-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.restaurant-cell-name {
+  font-size: 0.975rem;
+  font-weight: 600;
+  color: var(--text-main, #0f172a);
+}
+
+.restaurant-cell-desc {
+  font-size: 0.825rem;
+  line-height: 1.4;
+  color: #64748b;
+  margin: 0;
+}
+
+.restaurant-cell-address {
+  font-size: 0.875rem;
+  color: #334155;
+  line-height: 1.4;
+  word-break: break-word;
+  max-width: 320px;
+}
+
+.table-actions-group {
+  display: inline-flex;
+  gap: 0.625rem;
+  align-items: center;
+  justify-content: flex-end;
+}
+
 /* Alerts */
 .alert {
   padding: 0.85rem 1.15rem;

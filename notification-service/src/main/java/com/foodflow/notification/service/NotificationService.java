@@ -32,6 +32,7 @@ public class NotificationService {
         }
 
         Notification notification = Notification.builder()
+                .userId(event.getUserId())
                 .orderId(event.getOrderId())
                 .type(NotificationType.ORDER_CONFIRMED)
                 .message("Payment successful for order #" + event.getOrderId() + ". Amount: " + event.getAmount())
@@ -64,6 +65,7 @@ public class NotificationService {
         }
 
         Notification notification = Notification.builder()
+                .userId(event.getUserId())
                 .orderId(event.getOrderId())
                 .type(NotificationType.PAYMENT_FAILED)
                 .message("Payment failed for order #" + event.getOrderId() + ". Reason: " + event.getFailureReason())
@@ -98,10 +100,18 @@ public class NotificationService {
                 .stream().map(this::mapToDto).collect(Collectors.toList());
     }
     
-    public NotificationDto getNotification(Long id) {
+    public NotificationDto getNotification(Long id, Long authenticatedUserId, boolean isAdmin) {
         Notification notification = notificationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Notification not found"));
+                .orElseThrow(() -> new com.foodflow.notification.exception.ResourceNotFoundException("Notification not found with ID: " + id));
+        if (!isAdmin && notification.getUserId() != null && !notification.getUserId().equals(authenticatedUserId)) {
+            log.warn("Unauthorized notification lookup: caller {} does not own notification {}", authenticatedUserId, id);
+            throw new org.springframework.security.access.AccessDeniedException("Access denied: You do not own this notification");
+        }
         return mapToDto(notification);
+    }
+
+    public NotificationDto getNotification(Long id) {
+        return getNotification(id, null, true);
     }
 
     private NotificationDto mapToDto(Notification notification) {

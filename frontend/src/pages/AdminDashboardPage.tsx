@@ -39,8 +39,12 @@ export const AdminDashboardPage: React.FC = () => {
 
   const handleUpdateOrderStatus = async (e: React.FormEvent) => {
     e.preventDefault();
-    const orderIdNum = parseInt(targetOrderId, 10);
-    if (!orderIdNum || isNaN(orderIdNum)) {
+    if (!targetOrderId || !targetOrderId.trim()) {
+      setError('Please enter an Order ID.');
+      return;
+    }
+    const orderIdNum = parseInt(targetOrderId.trim(), 10);
+    if (isNaN(orderIdNum) || orderIdNum <= 0) {
       setError('Please provide a valid numeric Order ID.');
       return;
     }
@@ -53,8 +57,12 @@ export const AdminDashboardPage: React.FC = () => {
       const updatedOrder = await orderApi.updateOrderStatus(orderIdNum, targetOrderStatus);
       setSuccessMsg(`Order #${updatedOrder.id} status successfully transitioned to "${updatedOrder.status}"!`);
       setTargetOrderId('');
-    } catch (err) {
-      setError(getErrorMessage(err));
+    } catch (err: any) {
+      if (err?.response?.status === 404) {
+        setError('Order not found');
+      } else {
+        setError(getErrorMessage(err));
+      }
     } finally {
       setIsOverridingOrder(false);
     }
@@ -156,7 +164,7 @@ export const AdminDashboardPage: React.FC = () => {
             <button
               type="submit"
               className="btn btn-secondary"
-              disabled={isOverridingOrder || !targetOrderId.trim()}
+              disabled={isOverridingOrder}
               style={{ marginTop: '0.5rem' }}
             >
               {isOverridingOrder ? 'Updating...' : 'Update Order Status'}

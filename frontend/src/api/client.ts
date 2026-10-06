@@ -1,6 +1,6 @@
 import axios, { AxiosError } from 'axios';
 
-export const API_BASE_URL = (import.meta as { env?: Record<string, string> }).env?.VITE_API_BASE_URL || 'http://localhost:8080';
+export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8087';
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -64,6 +64,10 @@ export const getErrorMessage = (error: unknown): string => {
         if (errorObj.error && typeof errorObj.error === 'string') {
           return errorObj.error;
         }
+        const values = Object.values(errorObj);
+        if (values.length > 0 && typeof values[0] === 'string') {
+          return values.join(', ');
+        }
       }
 
       if (status === 400) return 'Invalid request data. Please check your inputs.';
@@ -74,7 +78,7 @@ export const getErrorMessage = (error: unknown): string => {
       if (status === 429) return 'Too many requests. Please wait a moment and try again.';
       if (status >= 500) return 'Backend server error. Please try again later.';
     } else if (error.request) {
-      return 'Cannot reach API Gateway at http://localhost:8080. Ensure backend services are running.';
+      return `Cannot reach API Gateway at ${API_BASE_URL}. Ensure backend services are running.`;
     }
   }
   return (error as Error)?.message || 'An unexpected error occurred.';
