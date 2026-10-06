@@ -616,15 +616,6 @@ The repository contains automated verification scripts and regression suites:
 - **Containerized Deployment:** Create Kubernetes manifests (Deployments, Services, ConfigMaps, Ingress) or Helm charts.
 - **Dead-Letter Topics (DLT):** Implement error handling and dead-letter topics for poisoned Kafka messages.
 
----
-
-## System Design & Interview Highlights
-
-- **Domain-Driven Design (DDD):** Clean decomposition into bounded contexts (`User`, `Restaurant`, `Order`, `Payment`, `Delivery`, `Notification`).
-- **Synchronous vs. Asynchronous Trade-Offs:** Synchronous REST is used where immediate client feedback is mandatory (authentication, catalog browsing, order submission), while asynchronous Kafka messaging is used for decoupled lifecycle workflows (payment confirmation, delivery creation, notifications).
-- **Idempotency & Deduplication:** Solves the at-least-once message delivery challenge inherent in distributed event streams via database deduplication tables (`processed_events`, `event_id` unique constraints).
-- **Graceful Degradation:** Cache errors do not fail user requests; read paths fall back cleanly to the relational store.
-- **State Machine Integrity:** Enforces predictable transitions and eliminates race-condition edge cases in distributed fulfillment workflows.
 
 
 
