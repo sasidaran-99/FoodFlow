@@ -628,12 +628,4 @@ The repository contains automated verification scripts and regression suites:
 
 ---
 
-## License
 
-License: Not specified.
-
----
-
-## Author
-
-Developed as a software engineering/system design project.
